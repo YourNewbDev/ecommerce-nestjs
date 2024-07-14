@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
+import { CreateProductCategoryDto, CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -9,11 +9,18 @@ import { error } from 'console';
 export class ProductService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(payload: CreateProductDto) {
+  async create(payload: CreateProductCategoryDto) {
     console.log(payload)
     try {
       return await this.prisma.product.create({
-        data: payload
+        data: {
+          ...payload.product,
+          Category: {
+            connect: {
+              name: payload.category.name
+            }
+          }
+        }
       })
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

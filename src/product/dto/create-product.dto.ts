@@ -19,8 +19,19 @@ export class CreateProductDto {
     quantity: number
 
     imgUrl: string
+}
+
+export class CreateCategory {
 
     @IsString()
     @IsNotEmpty()
-    categoryId: string
+    name: string
+
+}
+
+export class CreateProductCategoryDto {
+
+    product: CreateProductDto
+
+    category: CreateCategory
 }

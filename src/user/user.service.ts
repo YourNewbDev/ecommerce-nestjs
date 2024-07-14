@@ -1,38 +1,184 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Post } from '@nestjs/common';
 import { CreateProfileinUserDtO, CreateUserDto, CreateUserProfileDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import { error } from 'console';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(payload: CreateUserProfileDto) {
-    return await this.prisma.user.create({
-      data: {
-        ...payload.user,
-        profile: {
-          create: {
-            ...payload.profile
+  async createAdmin(payload: CreateUserProfileDto) {
+    try {
+      const saltOrRounds = 10
+      const salt = await bcrypt.genSalt(saltOrRounds)
+      const password = payload.user.password
+      const hash = await bcrypt.hash(password, salt)
+      return await this.prisma.user.create({
+        data: {
+          role: 'ADMIN',
+          email: payload.user.email,
+          password: hash,
+          address: payload.user.address,
+          profile: {
+            create: {
+              ...payload.profile
+            }
           }
         }
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          console.log(`Unique constraint failed on the ${payload.user.email}`)
+        }
       }
-    })
+    }
+    throw error
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async createUser(payload: CreateUserProfileDto) {
+    try {
+      const saltOrRounds = 10
+      const salt = await bcrypt.genSalt(saltOrRounds)
+      const password = payload.user.password
+      const hash = await bcrypt.hash(password, salt)
+      return await this.prisma.user.create({
+        data: {
+          role: 'USER',
+          email: payload.user.email,
+          password: hash,
+          address: payload.user.address,
+          profile: {
+            create: {
+              ...payload.profile
+            }
+          }
+        }
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          console.log(`Unique constraint failed on the ${payload.user.email}`)
+        }
+      }
+    }
+    throw error
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findAll() {
+    try {
+      return await this.prisma.user.findMany({
+        include: {
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      })
+    } catch (error) {
+    }
+    throw error
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findOne(id: string) {
+    try {
+      return await this.prisma.user.findUniqueOrThrow({
+        where: {
+          id: id
+        },
+        include: {
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+        }
+      }
+    }
+    throw error
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(id: string, payload: UpdateUserDto) {
+    try {
+      const checkRole = await this.prisma.user.findUniqueOrThrow({
+        where: {
+          id: id
+        }
+      })
+
+      if (checkRole.role === 'ADMIN') {
+        payload.user.role = 'ADMIN'
+      }
+      else {
+        payload.user.role = 'USER'
+      }
+
+      const saltOrRounds = 10
+      const salt = await bcrypt.genSalt(saltOrRounds)
+      const password = payload.user.password
+      const hash = await bcrypt.hash(password, salt)
+      return await this.prisma.user.update({
+        data: {
+          email: payload.user.email,
+          password: hash,
+          address: payload.user.address,
+          profile: {
+            update: {
+              data: {
+                ...payload.profile
+              }
+            }
+          }
+        },
+        where: {
+          id: id
+        }
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+        }
+      }
+    }
+    throw error
+  }
+
+  async remove(id: string) {
+    try {
+      return await this.prisma.$transaction([
+        this.prisma.profile.delete({
+          where: {
+            userId: id
+          }
+        }),
+        this.prisma.user.delete({
+          where: {
+            id: id
+          }
+        })
+      ])
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+        }
+      }
+    }
+    throw error
   }
 }
