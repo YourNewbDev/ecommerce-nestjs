@@ -9,6 +9,7 @@ import { error } from 'console';
 export class ProductService {
   constructor(private readonly prisma: PrismaService) { }
 
+  //USER_ADMIN CREATE PRODUCT WITH CATEGORY
   async create(payload: CreateProductCategoryDto) {
     console.log(payload)
     try {
@@ -32,11 +33,16 @@ export class ProductService {
     throw error
   }
 
+  //USER_ADMIN & USER RETRIEVE 
   async findAll() {
     try {
       return await this.prisma.product.findMany({
         include: {
-          Category: true
+          Category: {
+            select: {
+              name: true
+            }
+          }
         }
       })
     } catch (error) {
@@ -50,36 +56,52 @@ export class ProductService {
       return await this.prisma.product.findUniqueOrThrow({
         where: {
           id: id
+        },
+        include: {
+          Category: {
+            select: {
+              name: true
+            }
+          }
         }
       })
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+          console.log(`An operation failed because it depends on one or more records that were required but not found.`)
         }
       }
     }
     throw error
   }
 
+  //USER_ADMIN UPDATE PRODUCT WITH CATEGORY 
   async update(id: string, payload: UpdateProductDto) {
     try {
       return await this.prisma.product.update({
         where: {
           id: id
         },
-        data: payload
+        data: {
+          ...payload.product,
+          Category: {
+            connect: {
+              name: payload.category.name
+            }
+          }
+        }
       })
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+          console.log(`An operation failed because it depends on one or more records that were required but not found.`)
         }
       }
     }
     throw error
   }
 
+  //USER_ADMIN DELETE PRODUCT NOT WITH CATEGORY
   async remove(id: string) {
     try {
       return await this.prisma.product.delete({
@@ -90,7 +112,7 @@ export class ProductService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+          console.log(`An operation failed because it depends on one or more records that were required but not found.`)
         }
       }
     }

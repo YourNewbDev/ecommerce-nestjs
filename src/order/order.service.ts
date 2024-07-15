@@ -2,49 +2,83 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { error } from 'console';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  create(payload: CreateOrderDto) {
-    return this.prisma.$transaction(async (tx) => {
-      // CREATE ORDER
-      const createOrder = await tx.order.create({
-        data: payload
-      })
-
-      const getProduct = await tx.product.findUnique
-
-    })
-  }
-
+  //ALL USER RETRIEVE ORDER
   async findAll() {
-    return await this.prisma.order.findMany({
-      include: {
-        productOrder: {
-          include: {
-            product: true
-          }
-        },
-        User: {
-          include: {
-            profile: true
+    try {
+      return await this.prisma.order.findMany({
+        include: {
+          productOrder: {
+            include: {
+              product: true
+            }
+          },
+          User: {
+            include: {
+              profile: true
+            }
           }
         }
-      }
-    })
+      })
+    } catch (error) {
+    }
+    throw error
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findOne(id: string) {
+    try {
+      return await this.prisma.order.findUniqueOrThrow({
+        where: {
+          id: id
+        },
+        include: {
+          productOrder: {
+            include: {
+              product: true
+            }
+          },
+          User: {
+            include: {
+              profile: true
+            }
+          }
+        }
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          console.log(`An operation failed because it depends on one or more records that were required but not found.`)
+        }
+      }
+    }
+    throw error
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {
     return `This action updates a #${id} order`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  //ALL USER DELETE ORDER 
+  async remove(id: string) {
+    try {
+      return await this.prisma.order.delete({
+        where: {
+          id: id
+        }
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          console.log(`An operation failed because it depends on one or more records that were required but not found.`)
+        }
+      }
+    }
+    throw error
   }
 }

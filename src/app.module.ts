@@ -8,9 +8,10 @@ import { ConfigModule } from '@nestjs/config';
 import { OrderModule } from './order/order.module';
 import { ProductorderModule } from './productorder/productorder.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [ProductModule, PrismaModule, CategoryModule, OrderModule, ProductorderModule, UserModule],
+  imports: [ProductModule, PrismaModule, CategoryModule, OrderModule, ProductorderModule, UserModule, AuthModule],
   // controllers: [AppController],
   // providers: [AppService],
 })

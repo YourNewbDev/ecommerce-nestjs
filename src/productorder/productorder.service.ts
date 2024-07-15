@@ -7,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ProductorderService {
   constructor(private readonly prisma: PrismaService) {}
 
+  //ALL USER CREATE ORDER WITH PRODUCTS
   async create(payload: CreateOrderProductDto) {
     return await this.prisma.order.create({
       data: {

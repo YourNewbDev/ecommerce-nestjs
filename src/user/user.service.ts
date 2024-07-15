@@ -6,10 +6,12 @@ import { Prisma } from '@prisma/client';
 import { error } from 'console';
 import * as bcrypt from 'bcrypt'
 
+
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) { }
 
+  //USER_ADMIN CREATE
   async createAdmin(payload: CreateUserProfileDto) {
     try {
       const saltOrRounds = 10
@@ -39,6 +41,7 @@ export class UserService {
     throw error
   }
 
+  //USER CREATE
   async createUser(payload: CreateUserProfileDto) {
     try {
       const saltOrRounds = 10
@@ -67,7 +70,7 @@ export class UserService {
     }
     throw error
   }
-
+  //USER_ADMIN RETRIEVE ALL USERS
   async findAll() {
     try {
       return await this.prisma.user.findMany({
@@ -86,6 +89,7 @@ export class UserService {
     throw error
   }
 
+  //USER_ADMIN & USER RETRIEVE 
   async findOne(id: string) {
     try {
       return await this.prisma.user.findUniqueOrThrow({
@@ -112,6 +116,7 @@ export class UserService {
     throw error
   }
 
+  //USER_ADMIN & USER UPDATE WITH PROFILE
   async update(id: string, payload: UpdateUserDto) {
     try {
       const checkRole = await this.prisma.user.findUniqueOrThrow({
@@ -158,6 +163,7 @@ export class UserService {
     throw error
   }
 
+  //USER_ADMIN DELETE USER WITH PROFILE
   async remove(id: string) {
     try {
       return await this.prisma.$transaction([

@@ -11,5 +11,5 @@ export class CreateOrder {
 export class CreateOrderProductDto {
     order: CreateOrder
 
-    productorder: CreateProductorderDto[]
+    productorder: CreateProductorderDto[] //MANY TO ONE ORDER
 }

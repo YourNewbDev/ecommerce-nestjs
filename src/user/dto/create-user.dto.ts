@@ -10,6 +10,8 @@ export class CreateUserDto {
     email: string
     password: string
     address: string
+
+    id: string
 }
 
 export class CreateProfileinUserDtO {

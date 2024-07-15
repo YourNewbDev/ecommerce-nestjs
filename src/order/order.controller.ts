@@ -7,11 +7,6 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post()
-  create(@Body() payload: CreateOrderDto) {
-    return this.orderService.create(payload);
-  }
-
   @Get()
   findAll() {
     return this.orderService.findAll();
@@ -19,7 +14,7 @@ export class OrderController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+    return this.orderService.findOne(id);
   }
 
   @Patch(':id')
@@ -29,6 +24,6 @@ export class OrderController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+    return this.orderService.remove(id);
   }
 }

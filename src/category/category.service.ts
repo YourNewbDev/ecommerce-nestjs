@@ -6,11 +6,13 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { error } from 'console';
 import e from 'express';
+import { CreateUserProfileDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class CategoryService {
   constructor(private readonly prisma: PrismaService) { }
 
+  //USER_ADMIN CREATE CATEGORY
   async create(payload: CreateCategoryDto) {
     try {
       return await this.prisma.category.create({
@@ -26,6 +28,7 @@ export class CategoryService {
     throw error
   }
 
+  //USER_ADMIN & USER RETRIEVE 
   async findAll() {
     try {
       return await this.prisma.category.findMany({
@@ -51,13 +54,14 @@ export class CategoryService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+          console.log(`An operation failed because it depends on one or more records that were required but not found.`)
         }
       }
     }
     throw error
   }
 
+  //USER_ADMIN UPDATE CATEGORY **ALL PRODUCTS UNDER THE CHANGED CATEGORY WILL GET AFFECTED**
   async update(id: string, payload: UpdateCategoryDto) {
     try {
       return await this.prisma.category.update({
@@ -69,13 +73,14 @@ export class CategoryService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          console.log(`An operation failed because it depends on one or more records that were required but not found. ID ${id}`)
+          console.log(`An operation failed because it depends on one or more records that were required but not found.`)
         }
       }
     }
     throw error
   }
 
+  //USER_ADMIN DELETE CATEGORY NOT WITH PRODUCT
   async remove(id: string) {
     try {
       return await this.prisma.category.delete({
