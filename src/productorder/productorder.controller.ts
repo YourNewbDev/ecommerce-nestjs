@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { ProductorderService } from './productorder.service';
 import { CreateOrderProductDto, CreateProductorderDto } from './dto/create-productorder.dto';
 import { UpdateProductorderDto } from './dto/update-productorder.dto';
@@ -6,11 +6,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Controller('productorder')
 export class ProductorderController {
-  constructor(private readonly productorderService: ProductorderService) {}
+  constructor(private readonly productorderService: ProductorderService) { }
 
   @Post()
   create(@Body() payload: CreateOrderProductDto) {
     return this.productorderService.create(payload)
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateProductorderDto: UpdateProductorderDto) {
+    return this.productorderService.cancelOrder(id, updateProductorderDto);
   }
 
   // @Get()
@@ -26,11 +31,6 @@ export class ProductorderController {
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.prisma.productOrder.findOne(id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateProductorderDto: UpdateProductorderDto) {
-  //   return this.productorderService.update(+id, updateProductorderDto);
   // }
 
   // @Delete(':id')

@@ -4,16 +4,16 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { error } from 'console';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService, private eventEmitter: EventEmitter2) { }
 
   //USER_ADMIN CREATE PRODUCT WITH CATEGORY
   async create(payload: CreateProductCategoryDto) {
-    console.log(payload)
     try {
-      return await this.prisma.product.create({
+      const createdProduct = await this.prisma.product.create({
         data: {
           ...payload.product,
           Category: {
@@ -23,6 +23,18 @@ export class ProductService {
           }
         }
       })
+
+      const createdCategory = await this.prisma.category.findUnique({
+        where: {
+          id: createdProduct.categoryId
+        }
+      })
+
+      this.eventEmitter.emit('product.created', createdProduct, createdCategory)
+
+      console.log(createdProduct, createdCategory)
+
+      return createdProduct
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2003") {

@@ -5,11 +5,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { error } from 'console';
 import * as bcrypt from 'bcrypt'
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService, private eventEmitter: EventEmitter2) { }
 
   //USER_ADMIN CREATE
   async createAdmin(payload: CreateUserProfileDto) {
@@ -18,6 +19,12 @@ export class UserService {
       const salt = await bcrypt.genSalt(saltOrRounds)
       const password = payload.user.password
       const hash = await bcrypt.hash(password, salt)
+
+      const userRole = payload.user.role
+      const userName = `${payload.profile.firstName} ${payload.profile.lastName}`
+
+      this.eventEmitter.emit('user.created', `${userRole} ${userName}`)
+
       return await this.prisma.user.create({
         data: {
           role: 'ADMIN',

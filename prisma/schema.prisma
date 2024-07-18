@@ -72,10 +72,17 @@ model ProductOrder {
   id        String   @id @default(uuid())
   price     Float
   quantity  Int
+  status OrderStatus @default(ORDERED)
   product   Product? @relation(fields: [productId], references: [id])
   productId String?  @map("product_id")
   Order     Order?   @relation(fields: [orderId], references: [id])
   orderId   String?  @map("order_id")
 
   @@map("product_order")
+}
+
+enum OrderStatus {
+  ORDERED 
+  CANCELLED
+  RECEIVED
 }

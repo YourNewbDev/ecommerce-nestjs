@@ -7,17 +7,22 @@ import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { error } from 'console';
 import e from 'express';
 import { CreateUserProfileDto } from 'src/user/dto/create-user.dto';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService, private eventEmitter: EventEmitter2) { }
 
   //USER_ADMIN CREATE CATEGORY
   async create(payload: CreateCategoryDto) {
     try {
-      return await this.prisma.category.create({
+      const createdCategory = await this.prisma.category.create({
         data: payload
       })
+
+      this.eventEmitter.emit('category.created', createdCategory)
+
+      return createdCategory
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {

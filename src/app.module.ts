@@ -9,10 +9,12 @@ import { OrderModule } from './order/order.module';
 import { ProductorderModule } from './productorder/productorder.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventListenerService } from './eventlistener.service';
 
 @Module({
-  imports: [ProductModule, PrismaModule, CategoryModule, OrderModule, ProductorderModule, UserModule, AuthModule],
+  imports: [ProductModule, PrismaModule, CategoryModule, OrderModule, ProductorderModule, UserModule, AuthModule, EventEmitterModule.forRoot()],
   // controllers: [AppController],
-  // providers: [AppService],
+  providers: [EventListenerService],
 })
 export class AppModule {}
