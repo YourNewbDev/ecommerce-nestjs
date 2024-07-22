@@ -11,10 +11,26 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EventListenerService } from './eventlistener.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AccesTokenGuard } from './auth/guards/accessToken.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 @Module({
-  imports: [ProductModule, PrismaModule, CategoryModule, OrderModule, ProductorderModule, UserModule, AuthModule, EventEmitterModule.forRoot()],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ProductModule,
+    PrismaModule,
+    OrderModule,
+    ProductorderModule,
+    UserModule,
+    AuthModule,
+    EventEmitterModule.forRoot(),
+  ],
   // controllers: [AppController],
-  providers: [EventListenerService],
+  providers: [
+    EventListenerService,
+    { provide: APP_GUARD, useClass: AccesTokenGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}
