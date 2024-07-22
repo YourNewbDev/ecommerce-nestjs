@@ -14,13 +14,15 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(uuid())
-  role     Role
-  email    String    @unique
-  password String
-  address  String?
-  orders   Order[]
-  profile Profile?
+  id                 String   @id @default(uuid())
+  role               Role     @default(USER)
+  email              String   @unique
+  username           String?
+  password           String?
+  hashedRefreshToken String?
+  address            String?
+  orders             Order[]
+  profile            Profile?
 }
 
 model Profile {
@@ -59,30 +61,30 @@ model Category {
 }
 
 model Order {
-  id              String         @id @default(uuid())
-  createdAt       DateTime       @default(now())
-  User   User?          @relation(fields: [userId], references: [id])
-  userId String?
-  productOrder    ProductOrder[]
+  id           String         @id @default(uuid())
+  createdAt    DateTime       @default(now())
+  User         User?          @relation(fields: [userId], references: [id])
+  userId       String?
+  productOrder ProductOrder[]
 
   @@map("order")
 }
 
 model ProductOrder {
-  id        String   @id @default(uuid())
+  id        String      @id @default(uuid())
   price     Float
   quantity  Int
-  status OrderStatus @default(ORDERED)
-  product   Product? @relation(fields: [productId], references: [id])
-  productId String?  @map("product_id")
-  Order     Order?   @relation(fields: [orderId], references: [id])
-  orderId   String?  @map("order_id")
+  status    OrderStatus @default(ORDERED)
+  product   Product?    @relation(fields: [productId], references: [id])
+  productId String?     @map("product_id")
+  Order     Order?      @relation(fields: [orderId], references: [id])
+  orderId   String?     @map("order_id")
 
   @@map("product_order")
 }
 
 enum OrderStatus {
-  ORDERED 
+  ORDERED
   CANCELLED
   RECEIVED
 }
