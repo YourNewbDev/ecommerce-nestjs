@@ -12,6 +12,8 @@ import { CreateProductCategoryDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductService } from './product.service';
 import { Public } from 'src/decorator/public.decorator';
+import { Roles } from 'src/decorator/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('product')
 export class ProductController {
@@ -22,6 +24,7 @@ export class ProductController {
     return this.productService.create(payload);
   }
 
+  @Roles(Role.ADMIN)
   @Get()
   findAll() {
     return this.productService.findAll();

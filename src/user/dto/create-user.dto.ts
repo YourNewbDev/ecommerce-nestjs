@@ -1,13 +1,17 @@
 import { Role } from "@prisma/client";
 import { Type } from "class-transformer";
-import { IsHash, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsHash, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateUserDto {
 
     @IsString()
     @IsNotEmpty()
-    role!: Role
+    @IsEmail()
     email: string
+
+    @IsString()
+    @IsNotEmpty()
+    role!: Role
     password: string
     address: string
 

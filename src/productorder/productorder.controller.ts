@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/
 import { ProductorderService } from './productorder.service';
 import { CreateOrderProductDto, CreateProductorderDto } from './dto/create-productorder.dto';
 import { UpdateProductorderDto } from './dto/update-productorder.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Controller('productorder')
 export class ProductorderController {

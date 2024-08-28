@@ -5,11 +5,16 @@ import { IsNotEmpty, IsEmail, IsString } from "class-validator";
 
 export class SignInInput {
 
-  @IsNotEmpty()
-  @IsString()
-  @IsEmail()
+  // @IsNotEmpty()
+  // @IsString()
+  // @IsEmail()
   @ApiProperty()
   email: string;
+
+  // @IsNotEmpty()
+  // @IsString()
+  @ApiProperty()
+  username: string;
 
   @ApiProperty()
   password: string;

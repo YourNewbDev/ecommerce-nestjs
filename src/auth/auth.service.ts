@@ -64,13 +64,20 @@ export class AuthService {
   }
 
   async signin(signInInput: SignInInput, req: Request, res: Response) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: {
-        email: signInInput.email,
+        OR: [
+          {
+            email: signInInput.email
+          },
+          {
+            username: signInInput.username
+          }
+        ]
       },
     });
 
-    if (!user) throw new ForbiddenException('Email Not Registered');
+    if (!user) throw new ForbiddenException('Email or Username not registered');
 
     const pwMatches = await argon.verify(user.password, signInInput.password);
 
@@ -88,8 +95,8 @@ export class AuthService {
     }
 
     res.cookie('token', accessToken, {});
-
-    return res.send({ message: 'Logged in succefully' });
+    console.log(user)
+    return res.send({ message: 'Logged in succefully', token: accessToken });
 
     // return { accessToken, refreshToken, user }
   }
