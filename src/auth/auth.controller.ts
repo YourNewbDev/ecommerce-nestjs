@@ -30,10 +30,16 @@ export class AuthController {
   }
 
   @Public()
-  @Post('signin')
+  @Post('user/signin')
   @ApiCreatedResponse({ type: Auth })
   signin(@Body() signInInput: SignInInput, @Request() req, @Response() res) {
-    return this.authService.signin(signInInput, req, res);
+    return this.authService.userSignin(signInInput, req, res);
+  }
+
+  @Public()
+  @Post('admin/signin')
+  adminSignin(@Body() signInInput: SignInInput, @Request() req, @Response() res) {
+    return this.authService.adminSignin(signInInput, req, res);
   }
 
   @Get('signout')

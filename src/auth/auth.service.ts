@@ -52,7 +52,7 @@ export class AuthService {
       // return { accessToken, refreshToken, user }
       res.cookie('token', accessToken, {});
 
-      return res.send({ message: 'Logged in succefully', token: accessToken });
+      return res.send({ message: 'Logged in successfully', token: accessToken });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -63,7 +63,49 @@ export class AuthService {
     }
   }
 
-  async signin(signInInput: SignInInput, req: Request, res: Response) {
+  async adminSignin(signInInput: SignInInput, req: Request, res: Response) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email: signInInput.email
+          },
+          {
+            username: signInInput.username
+          }
+        ],
+        AND: [
+          {
+            role: 'ADMIN'
+          }
+        ]
+      }
+    });
+
+    if (!user) throw new ForbiddenException('Email or Username not registered or is not an admin');
+
+    const pwMatches = await argon.verify(user.password, signInInput.password);
+
+    if (!pwMatches) throw new ForbiddenException('Password incorrect');
+
+    const { accessToken, refreshToken } = await this.createTokens(
+      user.id,
+      user.email,
+      user.username
+    );
+    await this.updateRefresh(user.id, refreshToken);
+
+    if (!accessToken) {
+      throw new ForbiddenException('Could not signin');
+    }
+
+    res.cookie('token', accessToken, {});
+    console.log(user)
+    return res.send({message: 'Logged in successfully', token: accessToken });
+
+  }
+
+  async userSignin(signInInput: SignInInput, req: Request, res: Response) {
     const user = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -96,14 +138,14 @@ export class AuthService {
 
     res.cookie('token', accessToken, {});
     console.log(user)
-    return res.send({ message: 'Logged in succefully', token: accessToken });
+    return res.send({ message: 'Logged in successfully', token: accessToken });
 
     // return { accessToken, refreshToken, user }
   }
 
   async signout(req: Request, res: Response) {
     res.clearCookie('token');
-    return res.send({ message: 'Logged out succefully' });
+    return res.send({ message: 'Logged out successfully' });
   }
 
   ///Helper function

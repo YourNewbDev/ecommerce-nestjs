@@ -19,4 +19,6 @@ export class SignInInput {
   @ApiProperty()
   password: string;
 
+  role: string;
+
 }
